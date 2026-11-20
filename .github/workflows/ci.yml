@@ -1,0 +1,347 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # -------------------------------------------
+  # Lint & Type Check (Python)
+  # -------------------------------------------
+  lint-python:
+    name: Lint & Type Check (Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./booking-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Ruff (lint)
+        run: ruff check src tests
+
+      - name: Run Black (format check)
+        run: black --check src tests
+
+      - name: Run MyPy (type check)
+        run: mypy src
+
+  lint-bot:
+    name: Lint & Type Check (Bot Service)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bot-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Ruff (lint)
+        run: ruff check src tests
+
+      - name: Run Black (format check)
+        run: black --check src tests
+
+      - name: Run MyPy (type check)
+        run: mypy src
+
+  # -------------------------------------------
+  # Lint (Frontend - Landing)
+  # -------------------------------------------
+  lint-frontend:
+    name: Lint & Type Check (Frontend)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./landing
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript check
+        run: npm run typecheck
+
+      - name: Run Prettier check
+        run: npx prettier --check src
+
+  # -------------------------------------------
+  # Tests (Python)
+  # -------------------------------------------
+  test-booking:
+    name: Tests (Booking Service)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./booking-service
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: estetica_test
+          POSTGRES_USER: estetica
+          POSTGRES_PASSWORD: estetica
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U estetica -d estetica_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Alembic migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://estetica:estetica@localhost:5432/estetica_test
+        run: alembic upgrade head
+
+      - name: Run pytest with coverage
+        env:
+          DATABASE_URL: postgresql+asyncpg://estetica:estetica@localhost:5432/estetica_test
+          INTERNAL_API_KEY: test-internal-key
+          GOOGLE_CLIENT_ID: dummy
+          GOOGLE_CLIENT_SECRET: dummy
+          GOOGLE_REFRESH_TOKEN: dummy
+          EMAIL_FROM: test@test.cl
+          EMAIL_PROVIDER_KEY: dummy
+          ADMIN_EMAIL: admin@test.cl
+        run: pytest --cov=src --cov-report=xml --cov-fail-under=80
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: booking-service
+
+  test-bot:
+    name: Tests (Bot Service)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bot-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run pytest with coverage
+        env:
+          TELEGRAM_BOT_TOKEN: dummy
+          TELEGRAM_WEBHOOK_SECRET: dummy
+          ADMIN_TELEGRAM_CHAT_ID: 123456789
+          LLM_API_KEY: dummy
+          DATABRICKS_TOKEN: dummy
+          INTERNAL_API_KEY: test-internal-key
+          BOOKING_SERVICE_URL: http://localhost:8001
+          ADMIN_EMAIL: admin@test.cl
+        run: pytest --cov=src --cov-report=xml --cov-fail-under=80
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: bot-service
+
+  # -------------------------------------------
+  # Tests (Frontend)
+  # -------------------------------------------
+  test-frontend:
+    name: Tests (Frontend)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./landing
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test -- --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          flags: landing
+
+  # -------------------------------------------
+  # Build Docker Images
+  # -------------------------------------------
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [lint-python, lint-bot, lint-frontend, test-booking, test-bot, test-frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Booking Service
+        id: meta-booking
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-booking
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Booking Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./booking-service
+          push: true
+          tags: ${{ steps.meta-booking.outputs.tags }}
+          labels: ${{ steps.meta-booking.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Extract metadata for Bot Service
+        id: meta-bot
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-bot
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Bot Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./bot-service
+          push: true
+          tags: ${{ steps.meta-bot.outputs.tags }}
+          labels: ${{ steps.meta-bot.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Extract metadata for Landing
+        id: meta-landing
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-landing
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Landing
+        uses: docker/build-push-action@v5
+        with:
+          context: ./landing
+          file: ./landing/Dockerfile
+          push: true
+          tags: ${{ steps.meta-landing.outputs.tags }}
+          labels: ${{ steps.meta-landing.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # -------------------------------------------
+  # Deploy to GCP VM (solo en main)
+  # -------------------------------------------
+  deploy:
+    name: Deploy to GCP VM
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.GCP_VM_HOST }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_VM_SSH_KEY }}
+          script: |
+            cd /opt/estetica-platform
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f

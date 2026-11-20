@@ -1,0 +1,67 @@
+[
+  {
+    "text": "Ayudio es un centro de estética ubicado en Av. Providencia 1234, Providencia, Santiago. Especialistas en masajes, lavados, teñidos, uñas y servicios de belleza para mujeres. Atención personalizada en ambiente cálido y profesional.",
+    "source": "business_info",
+    "score": 1.0
+  },
+  {
+    "text": "Horarios de atención: Lunes a Viernes de 09:00 a 19:00, Sábado de 09:00 a 14:00. Domingos y festivos cerrado. Se recomienda agendar con anticipación.",
+    "source": "business_hours",
+    "score": 1.0
+  },
+  {
+    "text": "Servicios de masajes: Masaje Relajante 60 min ($35.000), Masaje Descontracturante 60 min ($40.000), Drenaje Linfático 60 min ($45.000), Piedras Calientes 75 min ($50.000). Todos incluyen aromaterapia y música relajante.",
+    "source": "services_masajes",
+    "score": 1.0
+  },
+  {
+    "text": "Servicios de lavados y tratamientos: Lavado + Hidratación 45 min ($25.000), Tratamiento Keratina 120 min ($80.000), Botox Capilar 90 min ($65.000), Reparación Profunda 60 min ($35.000). Usamos productos profesionales libres de sulfatos y parabenos.",
+    "source": "services_lavados",
+    "score": 1.0
+  },
+  {
+    "text": "Servicios de teñidos y color: Color Completo 90 min ($45.000), Mechas/Balayage 150 min ($70.000), Tono Fantasía 120 min ($55.000), Cobertura de Canas 60 min ($35.000). Test de alergia incluido sin cargo.",
+    "source": "services_tenidos",
+    "score": 1.0
+  },
+  {
+    "text": "Servicios de uñas: Manicure Clásica 30 min ($15.000), Esmaltado Semipermanente 45 min ($25.000), Uñas de Gel 90 min ($40.000), Pedicure Spa 60 min ($30.000). Incluye limado, cutículas, masaje de manos/pies y esmaltado.",
+    "source": "services_unas",
+    "score": 1.0
+  },
+  {
+    "text": "Otros servicios: Depilación Cejas hilo/cera 15 min ($10.000), Lifting de Pestañas 60 min ($35.000), Extensiones de Pestañas 90 min ($55.000), Pack Novia (prueba + día) 240 min ($180.000).",
+    "source": "services_otros",
+    "score": 1.0
+  },
+  {
+    "text": "Política de cancelación: Cancelación o reprogramación sin cargo hasta 24 horas antes. Cancelación con menos de 24 horas: 50% del servicio como abono. No-show (inasistencia sin aviso): 100% del servicio como abono. Máximo 3 cancelaciones tardías en 90 días requiere prepago en siguiente reserva.",
+    "source": "cancellation_policy",
+    "score": 1.0
+  },
+  {
+    "text": "Preparación previa: Para masajes, llegar 10 min antes. Para teñidos, no lavar cabello 24h antes. Para uñas, llegar sin esmalte. Para depilación, dejar crecer vello 3-4 semanas. Para lifting/extensiones de pestañas, llegar sin maquillaje.",
+    "source": "preparation_guide",
+    "score": 1.0
+  },
+  {
+    "text": "Cuidados posteriores: Masajes - beber agua, evitar ejercicio intenso 2h. Teñidos - no lavar 48h, usar champú sin sulfatos. Uñas - evitar agua caliente 2h, usar aceite cutículas diario. Lifting pestañas - no mojar 24h, no rímel 48h. Extensiones - no mojar 4h, cepillar diario.",
+    "source": "aftercare_guide",
+    "score": 1.0
+  },
+  {
+    "text": "Formas de pago: Efectivo, transferencia bancaria, tarjetas débito/crédito. El pago se realiza en el centro el día de la cita. No se solicita pago por chat ni adelantos.",
+    "source": "payment_methods",
+    "score": 1.0
+  },
+  {
+    "text": "Ubicación: Av. Providencia 1234, Providencia, Santiago. Metro más cercano: Los Leones (L1) o Pedro de Valdivia (L1). Estacionamientos de cortesía sujetos a disponibilidad. También hay estacionamientos pagados cercanos.",
+    "source": "location_info",
+    "score": 1.0
+  },
+  {
+    "text": "Preguntas frecuentes: ¿Cómo agendo? Por el bot de Telegram @ayudio. ¿Aceptan hombres? Solo servicios de masajes y depilación cejas. ¿Puedo ir acompañada? Sí, zona de espera con café/té. ¿Tienen estacionamiento? Cortesía sujeto a disponibilidad. ¿Regalan giftcards? Sí, consultar por chat.",
+    "source": "faqs",
+    "score": 1.0
+  }
+]

@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: estetica_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-estetica}
+      POSTGRES_USER: ${POSTGRES_USER:-estetica}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-estetica}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-estetica} -d ${POSTGRES_DB:-estetica}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis para caché y rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: estetica_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Booking Service - FastAPI + PostgreSQL
+  booking-service:
+    build:
+      context: ./booking-service
+      dockerfile: Dockerfile
+    container_name: estetica_booking
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-estetica}:${POSTGRES_PASSWORD:-estetica}@postgres:5432/${POSTGRES_DB:-estetica}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key-change-in-prod}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REFRESH_TOKEN=${GOOGLE_REFRESH_TOKEN}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_PROVIDER_KEY=${EMAIL_PROVIDER_KEY}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - TIMEZONE=America/Santiago
+      - CANCEL_MIN_HOURS=24
+      - BOOKING_MAX_HORIZON_DAYS=60
+      - GRID_SIZE_MINUTES=15
+      - MAX_ACTIVE_BOOKINGS_PER_CLIENT=3
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./booking-service:/app
+    command: >
+      sh -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # Bot Service - FastAPI + python-telegram-bot
+  bot-service:
+    build:
+      context: ./bot-service
+      dockerfile: Dockerfile
+    container_name: estetica_bot
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET}
+      - ADMIN_TELEGRAM_CHAT_ID=${ADMIN_TELEGRAM_CHAT_ID}
+      - LLM_PROVIDER=nemotron
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_MODEL=nemotron-nano-omni
+      - DATABRICKS_RAG_URL=http://rag-mock:8000
+      - DATABRICKS_TOKEN=${DATABRICKS_TOKEN}
+      - BOOKING_SERVICE_URL=http://booking-service:8000
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key-change-in-prod}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - TIMEZONE=America/Santiago
+      - STT_PROVIDER=mock
+      - TTS_PROVIDER=mock
+      # WhatsApp (Fase 6)
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
+      - WHATSAPP_WEBHOOK_VERIFY_TOKEN=${WHATSAPP_WEBHOOK_VERIFY_TOKEN}
+      - WHATSAPP_BUSINESS_ACCOUNT_ID=${WHATSAPP_BUSINESS_ACCOUNT_ID}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - booking-service
+      - rag-mock
+      - voice-mock
+    volumes:
+      - ./bot-service:/app
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # RAG Mock - FastAPI simple para desarrollo
+  rag-mock:
+    build:
+      context: ./rag-mock
+      dockerfile: Dockerfile
+    container_name: estetica_rag_mock
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./rag-mock:/app
+    command: uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+
+  # Voice Mock - STT/TTS mocks
+  voice-mock:
+    build:
+      context: ./voice-mock
+      dockerfile: Dockerfile
+    container_name: estetica_voice_mock
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./voice-mock:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Landing Page - React + Vite (servido por nginx en prod, vite dev server en dev)
+  landing:
+    build:
+      context: ./landing
+      dockerfile: Dockerfile.dev
+    container_name: estetica_landing
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./landing:/app
+      - /app/node_modules
+    environment:
+      - VITE_BOT_USERNAME=ayudio
+      - VITE_API_URL=http://localhost:8000
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: estetica_network

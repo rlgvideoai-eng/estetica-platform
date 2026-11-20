@@ -1,0 +1,46 @@
+# Core
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Telegram
+python-telegram-bot==20.7
+
+# HTTP Client
+httpx==0.26.0
+
+# LLM (Nemotron)
+openai==1.12.0  # compatible con Nemotron API
+
+# Utilities
+python-json-logger==2.0.7
+structlog==24.1.0
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Cache
+redis==5.0.1
+
+# Config
+pyyaml==6.0.1
+
+# Voice - STT (Speech-to-Text)
+faster-whisper==1.0.3
+# faster-whisper requires: ctranslate2, huggingface-hub, tokenizers
+ctranslate2==4.3.0
+huggingface-hub==0.20.3
+tokenizers==0.15.0
+
+# Voice - TTS (Text-to-Speech)
+piper-tts==1.2.0
+onnxruntime==1.17.0
+
+# Audio processing
+ffmpeg-python==0.2.0
+librosa==0.10.2
+soundfile==0.12.1
+
+# Config
+pyyaml==6.0.1

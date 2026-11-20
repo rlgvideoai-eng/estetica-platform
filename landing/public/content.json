@@ -1,0 +1,109 @@
+{
+  "business": {
+    "name": "Ayudio",
+    "tagline": "Tu centro de estética de confianza",
+    "description": "Especialistas en masajes, lavados, teñidos, uñas y servicios de belleza para mujeres. Atención personalizada en un ambiente cálido y profesional.",
+    "phone": "+56 2 2233 4455",
+    "email": "hola@ayudio.cl",
+    "address": "Av. Providencia 1234, Providencia, Santiago",
+    "instagram": "https://instagram.com/ayudio_cl",
+    "mapsUrl": "https://maps.app.goo.gl/ejemplo",
+    "hours": {
+      "weekdays": "Lunes a Viernes: 09:00 - 19:00",
+      "saturday": "Sábado: 09:00 - 14:00",
+      "sunday": "Domingo: Cerrado"
+    }
+  },
+  "services": [
+    {
+      "id": "masajes",
+      "name": "Masajes",
+      "icon": "💆‍♀️",
+      "description": "Masajes relajantes, descontracturantes, drenaje linfático y piedras calientes.",
+      "items": [
+        { "name": "Masaje Relajante 60 min", "price": 35000, "duration": 60 },
+        { "name": "Masaje Descontracturante 60 min", "price": 40000, "duration": 60 },
+        { "name": "Drenaje Linfático 60 min", "price": 45000, "duration": 60 },
+        { "name": "Piedras Calientes 75 min", "price": 50000, "duration": 75 }
+      ]
+    },
+    {
+      "id": "lavados",
+      "name": "Lavados y Tratamientos",
+      "icon": "🛁",
+      "description": "Lavados profundos, hidratación, keratina, botox capilar y tratamientos reparadores.",
+      "items": [
+        { "name": "Lavado + Hidratación", "price": 25000, "duration": 45 },
+        { "name": "Tratamiento Keratina", "price": 80000, "duration": 120 },
+        { "name": "Botox Capilar", "price": 65000, "duration": 90 },
+        { "name": "Reparación Profunda", "price": 35000, "duration": 60 }
+      ]
+    },
+    {
+      "id": "tenidos",
+      "name": "Teñidos y Color",
+      "icon": "🎨",
+      "description": "Coloración, mechas, balayage, tonos fantasía y cobertura de canas con productos profesionales.",
+      "items": [
+        { "name": "Color Completo", "price": 45000, "duration": 90 },
+        { "name": "Mechas / Balayage", "price": 70000, "duration": 150 },
+        { "name": "Tono Fantasía", "price": 55000, "duration": 120 },
+        { "name": "Cobertura de Canas", "price": 35000, "duration": 60 }
+      ]
+    },
+    {
+      "id": "unas",
+      "name": "Uñas",
+      "icon": "💅",
+      "description": "Manicure, pedicure, esmaltado semipermanente, gel, acrílico y nail art.",
+      "items": [
+        { "name": "Manicure Clásica", "price": 15000, "duration": 30 },
+        { "name": "Esmaltado Semipermanente", "price": 25000, "duration": 45 },
+        { "name": "Uñas de Gel", "price": 40000, "duration": 90 },
+        { "name": "Pedicure Spa", "price": 30000, "duration": 60 }
+      ]
+    },
+    {
+      "id": "otros",
+      "name": "Otros Servicios",
+      "icon": "✨",
+      "description": "Depilación, cejas, pestañas y paquetes combinados.",
+      "items": [
+        { "name": "Depilación Cejas (hilo/cera)", "price": 10000, "duration": 15 },
+        { "name": "Lifting de Pestañas", "price": 35000, "duration": 60 },
+        { "name": "Extensiones de Pestañas", "price": 55000, "duration": 90 },
+        { "name": "Pack Novia (prueba + día)", "price": 180000, "duration": 240 }
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "¿Cómo agendo mi hora?",
+      "answer": "Haz clic en el botón \"Agenda tu hora por chat\" que te llevará a nuestro bot de Telegram \"Ayudio\". Allí podrás ver disponibilidad, elegir servicio y confirmar tu reserva en minutos."
+    },
+    {
+      "question": "¿Qué métodos de pago aceptan?",
+      "answer": "Aceptamos efectivo, transferencia bancaria y tarjetas de débito/crédito. El pago se realiza directamente en el centro el día de tu cita."
+    },
+    {
+      "question": "¿Cuál es la política de cancelación?",
+      "answer": "Puedes cancelar o reprogramar sin cargo hasta 24 horas antes de tu cita. Cancelaciones con menos de 24 horas tienen un cargo del 50% del servicio. Las inasistencias sin aviso se cobran el 100%."
+    },
+    {
+      "question": "¿Tienen estacionamiento?",
+      "answer": "Contamos con estacionamientos de cortesía sujetos a disponibilidad. También hay estacionamientos pagados en las cercanías."
+    },
+    {
+      "question": "¿Puedo ir acompañada?",
+      "answer": "¡Claro! Puedes traer una acompañante. Contamos con una zona de espera cómoda con café y té."
+    }
+  ],
+  "gallery": [
+    "/images/gallery-1.jpg",
+    "/images/gallery-2.jpg",
+    "/images/gallery-3.jpg",
+    "/images/gallery-4.jpg",
+    "/images/gallery-5.jpg",
+    "/images/gallery-6.jpg"
+  ]
+}

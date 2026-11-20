@@ -1,0 +1,22 @@
+# Dev stage - Vite dev server con hot reload
+FROM node:20-alpine AS dev
+
+WORKDIR /app
+
+# Instalar dependencias del sistema para native modules
+RUN apk add --no-cache libc6-compat
+
+# Copiar package files
+COPY package*.json ./
+
+# Instalar dependencias
+RUN npm ci
+
+# Copiar código fuente
+COPY . .
+
+# Exponer puerto Vite
+EXPOSE 5173
+
+# Comando por defecto (sobrescrito en docker-compose)
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

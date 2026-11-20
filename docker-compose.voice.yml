@@ -1,0 +1,67 @@
+version: '3.8'
+
+# Docker Compose para desarrollo con VOZ REAL (faster-whisper + Piper)
+# Uso: docker compose -f docker-compose.yml -f docker-compose.voice.yml up -d
+
+services:
+  # Override bot-service para usar STT/TTS reales
+  bot-service:
+    build:
+      context: ./bot-service
+      dockerfile: Dockerfile.voice
+    environment:
+      - STT_PROVIDER=faster-whisper
+      - TTS_PROVIDER=piper
+      - WHISPER_MODEL_SIZE=small  # tiny, base, small, medium, large
+      - WHISPER_DEVICE=cpu        # cpu o cuda
+      - WHISPER_COMPUTE_TYPE=int8 # int8, int16, float16, float32
+      - PIPER_MODEL_PATH=/models/piper/es_CL-carlfm-x_low.onnx
+      - PIPER_CONFIG_PATH=/models/piper/es_CL-carlfm-x_low.onnx.json
+      - PIPER_SPEAKER_ID=0
+    volumes:
+      - ./bot-service:/app
+      - whisper_models:/models/whisper
+      - piper_models:/models/piper
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # Volumen para modelos de Whisper (se descargan automáticamente)
+  whisper_models:
+    driver: local
+
+  # Volumen para modelos de Piper TTS
+  piper_models:
+    driver: local
+
+  # Descargador de modelos (se ejecuta una vez al inicio)
+  model-downloader:
+    image: python:3.11-slim
+    command: >
+      sh -c "
+        pip install faster-whisper piper-tts onnxruntime huggingface-hub &&
+        python -c '
+        from faster_whisper import WhisperModel
+        WhisperModel(\"small\", device=\"cpu\", compute_type=\"int8\", download_root=\"/models/whisper\")
+        print(\"Whisper model downloaded\")
+        ' &&
+        python -c '
+        from huggingface_hub import hf_hub_download
+        hf_hub_download(repo_id=\"rhasspy/piper-voices\", filename=\"es/es_CL/carlfm/x_low/es_CL-carlfm-x_low.onnx\", local_dir=\"/models/piper\")
+        hf_hub_download(repo_id=\"rhasspy/piper-voices\", filename=\"es/es_CL/carlfm/x_low/es_CL-carlfm-x_low.onnx.json\", local_dir=\"/models/piper\")
+        print(\"Piper model downloaded\")
+        '
+      "
+    volumes:
+      - whisper_models:/models/whisper
+      - piper_models:/models/piper
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  whisper_models:
+  piper_models:

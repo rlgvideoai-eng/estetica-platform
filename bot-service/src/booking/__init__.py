@@ -1,0 +1,1 @@
+"""Booking client package - HTTP client to booking-service."""
